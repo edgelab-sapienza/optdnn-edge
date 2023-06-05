@@ -1,5 +1,5 @@
 from enum import IntEnum, auto
-from benchmarker_core.benchmarker_core import BenchmarkerCore
+from tf_optimizer_core.benchmarker_core import BenchmarkerCore
 import struct
 
 
@@ -27,12 +27,12 @@ class Protocol:
         return struct.pack(f"!B{payload_len}s", int(self.cmd), self.payload)
 
     @classmethod
-    def build_put_model_file_request(cls, file_path: str):
-        return Protocol(PayloadMeans.ModelPath, bytes(file_path, "utf-8"))
+    def build_put_model_file_request(cls, file_path: str,):
+        return Protocol(PayloadMeans.ModelPath, file_path.encode())
 
     @classmethod
-    def build_put_dataset_file_request(cls, file_path: str):
-        return Protocol(PayloadMeans.DatasetPath, bytes(file_path, "utf-8"))
+    def build_put_dataset_file_request(cls, dataset_url: bytes):
+        return Protocol(PayloadMeans.DatasetPath, dataset_url)
 
     @classmethod
     def build_with_result(cls, result: BenchmarkerCore.Result):

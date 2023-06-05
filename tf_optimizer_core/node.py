@@ -1,12 +1,14 @@
 # Server executed in the host that performs the optimizations
 import asyncio
 import websockets
-from benchmarker_core.protocol import Protocol, PayloadMeans
-import zget
-from benchmarker_core.utils import file_callback
+
+# import zget
+# from tf_optimizer_core.utils import file_callback
+from tf_optimizer_core.benchmarker_core import BenchmarkerCore
+from tf_optimizer_core.protocol import Protocol, PayloadMeans
 import shutil
 import os
-from benchmarker_core.benchmarker_core import BenchmarkerCore
+import requests
 
 
 # Node
@@ -39,13 +41,23 @@ class Node:
 
         # Download model file
         if protocol.cmd == PayloadMeans.ModelPath:
-            model_name = bytes.decode(protocol.payload, "utf-8")
-            zget.get(model_name, self.MODEL_PATH, file_callback)
+            content = protocol.payload.decode()
+            print(f"RECV {content}")
+            url, model_name = content.split(Protocol.string_delimiter)
+            responce = requests.get(url)
+            with open(self.MODEL_PATH, "wb") as f:
+                f.write(responce.content)
+                f.close()
+            print(f"MODEL:{model_name} SAVED IN: {self.MODEL_PATH}")
+            # zget.get(model_name, self.MODEL_PATH, file_callback)
             return await self.__test_model(websocket, model_name)
         # Download dataset
         elif protocol.cmd == PayloadMeans.DatasetPath:
-            identifer = bytes.decode(protocol.payload, "utf-8")
-            zget.get(identifer, self.DATASET_ZIP, file_callback)
+            responce = requests.get(protocol.payload)
+            with open(self.DATASET_ZIP, "wb") as f:
+                f.write(responce.content)
+                f.close()
+            print(f"DATASET SAVED IN:{self.DATASET_ZIP}")
             shutil.unpack_archive(self.DATASET_ZIP, self.DATASET_FOLDER, "zip")
             return Protocol(PayloadMeans.Ok, b"")
         # Delete workspace
