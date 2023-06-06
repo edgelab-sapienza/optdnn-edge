@@ -1,7 +1,8 @@
-import tensorflow as tf
 import numpy as np
 import time
 from abc import abstractmethod, ABC
+from tf_optimizer_core.dataset_loader import load
+import tflite_runtime.interpreter as tflite
 
 
 # Class to evaluate only one model
@@ -21,28 +22,19 @@ class BenchmarkerCore:
         self.dataset_path = dataset_path
         self.__dataset = None
 
-    def __get_dataset__(
-        self, image_size: tuple, images_to_take: int = 100
-    ) -> tf.data.Dataset:
+    def __get_dataset__(self, image_size: tuple, images_to_take: int = 100):
         if self.__dataset is not None:  # And size match
-            sample = next(self.__dataset.as_numpy_iterator())
-            if image_size == sample[0].shape[:2]:  # Check is image size is the same
+            if image_size == self.__dataset[0][0].shape[:2]:  # Check is image size is the same
                 return self.__dataset
 
-        self.__dataset = (
-            tf.keras.utils.image_dataset_from_directory(
-                self.dataset_path, image_size=image_size
-            )
-            .unbatch()
-            .take(images_to_take)
-        )
-        self.__dataset = self.__dataset.map(lambda x, y: (x / 255, y))
+        self.__dataset = load(self.dataset_path, image_size, images_to_take)
+
         return self.__dataset
 
     async def test_model(
         self, model_path: str, model_name: str = "", callback: Callback = None
     ):
-        interpreter = tf.lite.Interpreter(model_path=model_path)
+        interpreter = tflite.Interpreter(model_path=model_path)
         interpreter.allocate_tensors()
         input_details = interpreter.get_input_details()[0]
         input_index = input_details["index"]

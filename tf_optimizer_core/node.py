@@ -42,7 +42,6 @@ class Node:
         # Download model file
         if protocol.cmd == PayloadMeans.ModelPath:
             content = protocol.payload.decode()
-            print(f"RECV {content}")
             url, model_name = content.split(Protocol.string_delimiter)
             responce = requests.get(url)
             with open(self.MODEL_PATH, "wb") as f:
