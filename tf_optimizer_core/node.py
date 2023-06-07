@@ -65,8 +65,9 @@ class Node:
             os.mkdir(self.workspace)
         return None
 
-    def __init__(self) -> None:
+    def __init__(self, port : int = 12300) -> None:
         os.makedirs(self.workspace, exist_ok=True)
+        self.port = port
 
     def __del__(self):
         shutil.rmtree(self.workspace)
@@ -90,5 +91,5 @@ class Node:
                 await websocket.send(data.to_bytes())
 
     async def serve(self) -> None:
-        async with websockets.serve(self.recv_msg, "localhost", 9898):
+        async with websockets.serve(self.recv_msg, "localhost", self.port):
             await asyncio.Future()
