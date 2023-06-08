@@ -52,7 +52,8 @@ class Node:
             return await self.__test_model(websocket, model_name)
         # Download dataset
         elif protocol.cmd == PayloadMeans.DatasetPath:
-            responce = requests.get(protocol.payload)
+            url = requests.get(protocol.payload)
+            responce = requests.get(url)
             with open(self.DATASET_ZIP, "wb") as f:
                 f.write(responce.content)
                 f.close()
