@@ -6,6 +6,7 @@ import websockets
 # from tf_optimizer_core.utils import file_callback
 from tf_optimizer_core.benchmarker_core import BenchmarkerCore
 from tf_optimizer_core.protocol import Protocol, PayloadMeans
+from tqdm.auto import tqdm
 import shutil
 import os
 import requests
@@ -43,20 +44,21 @@ class Node:
         if protocol.cmd == PayloadMeans.ModelPath:
             content = protocol.payload.decode()
             url, model_name = content.split(Protocol.string_delimiter)
-            responce = requests.get(url)
-            with open(self.MODEL_PATH, "wb") as f:
-                f.write(responce.content)
-                f.close()
+            with requests.get(url, stream=True) as r:
+                total_length = int(r.headers.get("Content-Length"))
+                with tqdm.wrapattr(r.raw, "read", total=total_length, desc="") as raw:
+                    with open(self.MODEL_PATH, "wb") as f:
+                        shutil.copyfileobj(raw, f)
             print(f"MODEL:{model_name} SAVED IN: {self.MODEL_PATH}")
             # zget.get(model_name, self.MODEL_PATH, file_callback)
             return await self.__test_model(websocket, model_name)
         # Download dataset
         elif protocol.cmd == PayloadMeans.DatasetPath:
-            url = requests.get(protocol.payload)
-            responce = requests.get(url)
-            with open(self.DATASET_ZIP, "wb") as f:
-                f.write(responce.content)
-                f.close()
+            with requests.get(protocol.payload, stream=True) as r:
+                total_length = int(r.headers.get("Content-Length"))
+                with tqdm.wrapattr(r.raw, "read", total=total_length, desc="") as raw:
+                    with open(self.DATASET_ZIP, "wb") as f:
+                        shutil.copyfileobj(raw, f)
             print(f"DATASET SAVED IN:{self.DATASET_ZIP}")
             shutil.unpack_archive(self.DATASET_ZIP, self.DATASET_FOLDER, "zip")
             return Protocol(PayloadMeans.Ok, b"")
@@ -66,7 +68,7 @@ class Node:
             os.mkdir(self.workspace)
         return None
 
-    def __init__(self, port : int = 12300) -> None:
+    def __init__(self, port: int = 12300) -> None:
         os.makedirs(self.workspace, exist_ok=True)
         self.port = port
 

@@ -96,6 +96,17 @@ files = [
 ]
 
 [[package]]
+name = "colorama"
+version = "0.4.6"
+description = "Cross-platform colored terminal text."
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
+files = [
+    {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
+    {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
+]
+
+[[package]]
 name = "idna"
 version = "3.4"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -105,37 +116,6 @@ files = [
     {file = "idna-3.4-py3-none-any.whl", hash = "sha256:90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2"},
     {file = "idna-3.4.tar.gz", hash = "sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"},
 ]
-
-[[package]]
-name = "imageio"
-version = "2.31.0"
-description = "Library for reading and writing a wide range of image, video, scientific, and volumetric data formats."
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "imageio-2.31.0-py3-none-any.whl", hash = "sha256:141bbd97910fad105c179a6b344ae4e7fef0dd85411303c63cd925b4c6163bee"},
-    {file = "imageio-2.31.0.tar.gz", hash = "sha256:9e2d1dec1c74ba10d58856f2f02883b84f5cd5be937a1156cc238b539a6cf068"},
-]
-
-[package.dependencies]
-numpy = "*"
-pillow = ">=8.3.2"
-
-[package.extras]
-all-plugins = ["astropy", "av", "imageio-ffmpeg", "psutil", "tifffile"]
-all-plugins-pypy = ["av", "imageio-ffmpeg", "psutil", "tifffile"]
-build = ["wheel"]
-dev = ["black", "flake8", "fsspec[github]", "pytest", "pytest-cov"]
-docs = ["numpydoc", "pydata-sphinx-theme", "sphinx (<6)"]
-ffmpeg = ["imageio-ffmpeg", "psutil"]
-fits = ["astropy"]
-full = ["astropy", "av", "black", "flake8", "fsspec[github]", "gdal", "imageio-ffmpeg", "itk", "numpydoc", "psutil", "pydata-sphinx-theme", "pytest", "pytest-cov", "sphinx (<6)", "tifffile", "wheel"]
-gdal = ["gdal"]
-itk = ["itk"]
-linting = ["black", "flake8"]
-pyav = ["av"]
-test = ["fsspec[github]", "pytest", "pytest-cov"]
-tifffile = ["tifffile"]
 
 [[package]]
 name = "numpy"
@@ -276,21 +256,44 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "tflite-runtime"
-version = "2.12.0"
+version = "2.11.0"
 description = "TensorFlow Lite is for mobile and embedded devices."
 optional = false
 python-versions = "*"
 files = [
-    {file = "tflite_runtime-2.12.0-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:098c7d62f07ea34dcdde0aaa081b1278f02b292d8dac8a91b25bc70c0ef9e95a"},
-    {file = "tflite_runtime-2.12.0-cp38-cp38-manylinux2014_armv7l.whl", hash = "sha256:d3bed6610f80d45d7f38080233f0e302cbb0c48cc2f963bff0fb24729723a13b"},
-    {file = "tflite_runtime-2.12.0-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:49fe5c1d99e60a32849e9fdee8a9a79b7aa90a0bba74d0614542ce0c82edea30"},
-    {file = "tflite_runtime-2.12.0-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:91353bf0e4480adb27b8f68b0898fe40040649f10311992abee351055ba8d98f"},
-    {file = "tflite_runtime-2.12.0-cp39-cp39-manylinux2014_armv7l.whl", hash = "sha256:1b39d956ce27cb7efcdd5fa8edf8c46388d856f68fda3563125641a44158c193"},
-    {file = "tflite_runtime-2.12.0-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:474684cc00e2db80027a9145b51425121432418ee0f21f0aa497da4731485ca4"},
+    {file = "tflite_runtime-2.11.0-cp37-cp37m-manylinux2014_aarch64.whl", hash = "sha256:50832befa76d69de082394716846e12d85fa8257f3ddb0a4755479bdb0a47083"},
+    {file = "tflite_runtime-2.11.0-cp37-cp37m-manylinux2014_armv7l.whl", hash = "sha256:cf018122630db1584ecd7645b77e87814edf4b9b6f29a1bbde188009e644737f"},
+    {file = "tflite_runtime-2.11.0-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:6a784dd07df27316d5a800b60ce2f448572b6ad7ea5372b93c931818d6bda482"},
+    {file = "tflite_runtime-2.11.0-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:a3e53e625626312f9384aefa72458fd2d756a57e0a98394096300c3c1183caf8"},
+    {file = "tflite_runtime-2.11.0-cp38-cp38-manylinux2014_armv7l.whl", hash = "sha256:aad98db64962a515a90deaf38110181b3eb4cafbe9654673a71bda147e1c2576"},
+    {file = "tflite_runtime-2.11.0-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:086f5ac54e6b6a73b75fa91ea63a7c8a71274272c787f39ed1ebeab2d570595c"},
+    {file = "tflite_runtime-2.11.0-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:e15ebb86a1039cbbe9132cb3497466e248d401b03b963b6d4045f732d1a66e2a"},
+    {file = "tflite_runtime-2.11.0-cp39-cp39-manylinux2014_armv7l.whl", hash = "sha256:1cf50a6c51147d70299f4469f6cfab732f38f6ee7999df287155513e742360e6"},
+    {file = "tflite_runtime-2.11.0-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:7ec1652408e33d0d4958fb830be00fd9829e2bf3b901e6a02b0b9186b2d2e61c"},
 ]
 
 [package.dependencies]
 numpy = ">=1.19.2"
+
+[[package]]
+name = "tqdm"
+version = "4.65.0"
+description = "Fast, Extensible Progress Meter"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "tqdm-4.65.0-py3-none-any.whl", hash = "sha256:c4f53a17fe37e132815abceec022631be8ffe1b9381c2e6e30aa70edc99e9671"},
+    {file = "tqdm-4.65.0.tar.gz", hash = "sha256:1871fb68a86b8fb3b59ca4cdd3dcccbc7e6d613eeed31f4c332531977b89beb5"},
+]
+
+[package.dependencies]
+colorama = {version = "*", markers = "platform_system == \"Windows\""}
+
+[package.extras]
+dev = ["py-make (>=0.1.0)", "twine", "wheel"]
+notebook = ["ipywidgets (>=6)"]
+slack = ["slack-sdk"]
+telegram = ["requests"]
 
 [[package]]
 name = "urllib3"
@@ -391,4 +394,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "39e51d9de69e950137a4a7c1772e6d494fa24f68c24aea16b4b2d88936952a4c"
+content-hash = "0276b414b1ac1351d52b98d62468f8219ca23474835f6574460c3f64433ece9f"
