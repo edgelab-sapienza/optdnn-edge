@@ -91,5 +91,5 @@ class Node:
                 await websocket.send(data.to_bytes())
 
     async def serve(self) -> None:
-        async with websockets.serve(self.recv_msg, "localhost", self.port):
+        async with websockets.serve(self.recv_msg, "0.0.0.0", self.port):
             await asyncio.Future()
