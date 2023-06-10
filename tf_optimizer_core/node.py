@@ -6,10 +6,12 @@ import websockets
 # from tf_optimizer_core.utils import file_callback
 from tf_optimizer_core.benchmarker_core import BenchmarkerCore
 from tf_optimizer_core.protocol import Protocol, PayloadMeans
+from tf_optimizer_core.utils import unzip_file
 from tqdm.auto import tqdm
 import shutil
 import os
 import requests
+import tempfile
 
 
 # Node
@@ -46,12 +48,17 @@ class Node:
             url, model_name = content.split(Protocol.string_delimiter)
             with requests.get(url, stream=True) as r:
                 total_length = int(r.headers.get("Content-Length"))
+                fd, path = tempfile.mkstemp()
                 with tqdm.wrapattr(r.raw, "read", total=total_length, desc="") as raw:
-                    with open(self.MODEL_PATH, "wb") as f:
+                    with open(fd, "wb") as f:
                         shutil.copyfileobj(raw, f)
+            unzip_file(path, self.MODEL_PATH)
+            os.remove(path)
             print(f"MODEL:{model_name} SAVED IN: {self.MODEL_PATH}")
             # zget.get(model_name, self.MODEL_PATH, file_callback)
-            return await self.__test_model(websocket, model_name)
+            result = await self.__test_model(websocket, model_name)
+            os.remove(self.MODEL_PATH)
+            return result
         # Download dataset
         elif protocol.cmd == PayloadMeans.DatasetPath:
             with requests.get(protocol.payload, stream=True) as r:
