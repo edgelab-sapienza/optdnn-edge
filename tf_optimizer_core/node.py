@@ -48,10 +48,11 @@ class Node:
             url, model_name = content.split(Protocol.string_delimiter)
             with requests.get(url, stream=True) as r:
                 total_length = int(r.headers.get("Content-Length"))
-                fd, path = tempfile.mkstemp()
+                fd, path = tempfile.mkstemp(".zip")
                 with tqdm.wrapattr(r.raw, "read", total=total_length, desc="") as raw:
                     with open(fd, "wb") as f:
                         shutil.copyfileobj(raw, f)
+            print(f"DOWNLOADING IN {path}")
             unzip_file(path, self.MODEL_PATH)
             os.remove(path)
             print(f"MODEL:{model_name} SAVED IN: {self.MODEL_PATH}")
