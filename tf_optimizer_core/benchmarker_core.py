@@ -24,7 +24,9 @@ class BenchmarkerCore:
 
     def __get_dataset__(self, image_size: tuple, images_to_take: int = 100):
         if self.__dataset is not None:  # And size match
-            if image_size == self.__dataset[0][0].shape[:2]:  # Check is image size is the same
+            if (
+                image_size == self.__dataset[0][0].shape[:2]
+            ):  # Check is image size is the same
                 return self.__dataset
 
         self.__dataset = load(self.dataset_path, image_size, images_to_take)

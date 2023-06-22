@@ -22,6 +22,7 @@ class Node:
     DATASET_FOLDER = f"{workspace}/dataset"
     benchmarkerCore = None
     remote_address = None
+    interval = (0, 1)
 
     class RemoteCallback(BenchmarkerCore.Callback):
         def __init__(self, websocket) -> None:
@@ -74,6 +75,10 @@ class Node:
         elif protocol.cmd == PayloadMeans.Close:
             shutil.rmtree(self.workspace)
             os.mkdir(self.workspace)
+        elif protocol.cmd == PayloadMeans.DatasetScale:
+            content = protocol.payload.decode()
+            min_val, max_val = content.split(Protocol.string_delimiter)
+            self.interval = (int(min_val), int(max_val))
         return None
 
     def __init__(self, port: int = 12300) -> None:

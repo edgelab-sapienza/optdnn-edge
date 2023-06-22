@@ -6,6 +6,7 @@ import struct
 class PayloadMeans(IntEnum):
     ModelPath = auto()
     DatasetPath = auto()
+    DatasetScale = auto()
     Result = auto()
     Ok = auto()
     Close = auto()

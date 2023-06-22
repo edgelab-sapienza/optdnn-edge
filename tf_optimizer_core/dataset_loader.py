@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 
 
-def load(dataset_path, size, image_to_take=-1):
+def load(dataset_path, size, image_to_take=-1, interval=[0, 1], batch_size=-1):
     """Load an image dataset as NumPy arrays.
 
     Args:
@@ -17,12 +17,15 @@ def load(dataset_path, size, image_to_take=-1):
     y_dtype: NumPy data type for the Y arrays.
     Returns a tuple of (x, y) tuples corresponding to set_names.
     """
+    interval_min = interval[0]
+    interval_max = interval[1]
+    interval_range = interval_max - interval_min
 
     def open_image(path):
         img = Image.open(path)
         img = img.resize(size)
         img = np.asarray(img)
-        img = img / 255.0
+        img = interval_min + (interval_range * img.astype(np.float32) / 255.0)
         return img
 
     dataset = []
@@ -41,6 +44,27 @@ def load(dataset_path, size, image_to_take=-1):
     if image_to_take > 0:
         dataset = dataset[: min(image_to_take, len(dataset))]
     random.shuffle(dataset)
-    dataset = list(map(lambda x: (open_image(x[0]), set_names.index(x[1])), dataset))
-
-    return dataset
+    # if batch_size < 0:
+    return list(
+        map(
+            lambda x: (
+                open_image(x[0]),
+                x[1] if x[1].isdigit() else set_names.index(x[1]),
+            ),
+            dataset,
+        )
+    )
+    """
+    else:
+        for img_index in range(0, len(dataset), batch_size):
+            batch = []
+            for batch_index in range(batch_size):
+                image = dataset[img_index + batch_index]
+                batch.append(
+                    (
+                        open_image(image[0]),
+                        int(image[1]) if image[1].isdigit() else set_names.index(image[1]),
+                    )
+                )
+            yield batch
+    """
