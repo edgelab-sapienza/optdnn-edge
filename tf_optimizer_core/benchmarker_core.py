@@ -11,6 +11,9 @@ class BenchmarkerCore:
         accuracy: float
         time: float
 
+        def __str__(self) -> str:
+            return f"Accuracy: {self.accuracy} - Tooked time: {self.time}"
+
     class Callback(ABC):
         @abstractmethod
         async def progress_callback(
@@ -18,18 +21,15 @@ class BenchmarkerCore:
         ):
             pass
 
-    def __init__(self, dataset_path: str) -> None:
+    def __init__(self, dataset_path: str, interval=[0, 1]) -> None:
         self.dataset_path = dataset_path
         self.__dataset = None
+        self.interval = interval
 
     def __get_dataset__(self, image_size: tuple, images_to_take: int = 100):
-        if self.__dataset is not None:  # And size match
-            if (
-                image_size == self.__dataset[0][0].shape[:2]
-            ):  # Check is image size is the same
-                return self.__dataset
-
-        self.__dataset = load(self.dataset_path, image_size, images_to_take)
+        self.__dataset = load(
+            self.dataset_path, image_size, images_to_take, interval=self.interval
+        )
 
         return self.__dataset
 
@@ -43,18 +43,18 @@ class BenchmarkerCore:
         output_index = interpreter.get_output_details()[0]["index"]
         pixel_sizes = interpreter.get_input_details()[0]["shape"][1:3]
         input_size = (pixel_sizes[0], pixel_sizes[1])
-        dataset = self.__get_dataset__(input_size, images_to_take=150)
+        images_to_take = 150
+        dataset = self.__get_dataset__(input_size, images_to_take=images_to_take)
 
         correct = 0
         total = 0
         sum_time = 0
         for image, label in dataset:
-            if input_details["dtype"] in [np.uint8, np.int8]:
+            if input_details["dtype"] == np.uint8 or input_details["dtype"] == np.int8:
                 input_scale, input_zero_point = input_details["quantization"]
                 image = image / input_scale + input_zero_point
-                image = np.expand_dims(image, axis=0).astype(input_details["dtype"])
-            else:
-                image = np.expand_dims(image, axis=0).astype(np.float32)
+
+            image = np.expand_dims(image, axis=0).astype(input_details["dtype"])
             interpreter.set_tensor(input_index, image)
             start = time.time() * 1000
             interpreter.invoke()
@@ -63,14 +63,13 @@ class BenchmarkerCore:
             sum_time += tooked_time
             output = interpreter.tensor(output_index)
             predicted_label = np.argmax(output()[0])
-            if predicted_label == label:
+            if int(predicted_label) == int(label):
                 correct += 1
             total += 1
 
             if callback is not None:
-                number_of_elements = sum(map(lambda x: 1, dataset))
                 accuracy = 100 * correct / total
-                progress = 100 * total / number_of_elements
+                progress = 100 * total / images_to_take
                 await callback.progress_callback(
                     accuracy, progress, tooked_time, model_name
                 )

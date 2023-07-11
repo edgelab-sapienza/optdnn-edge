@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 
 
-def load(dataset_path, size, image_to_take=-1, interval=[0, 1], batch_size=-1):
+def load(dataset_path, size, image_to_take=-1, interval=[0, 1]):
     """Load an image dataset as NumPy arrays.
 
     Args:
@@ -45,26 +45,8 @@ def load(dataset_path, size, image_to_take=-1, interval=[0, 1], batch_size=-1):
         dataset = dataset[: min(image_to_take, len(dataset))]
     random.shuffle(dataset)
     # if batch_size < 0:
-    return list(
-        map(
-            lambda x: (
-                open_image(x[0]),
-                x[1] if x[1].isdigit() else set_names.index(x[1]),
-            ),
-            dataset,
+    for img in dataset:
+        yield (
+            open_image(img[0]),
+            img[1] if img[1].isdigit() else set_names.index(img[1]),
         )
-    )
-    """
-    else:
-        for img_index in range(0, len(dataset), batch_size):
-            batch = []
-            for batch_index in range(batch_size):
-                image = dataset[img_index + batch_index]
-                batch.append(
-                    (
-                        open_image(image[0]),
-                        int(image[1]) if image[1].isdigit() else set_names.index(image[1]),
-                    )
-                )
-            yield batch
-    """
