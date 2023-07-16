@@ -2,7 +2,22 @@ import numpy as np
 import time
 from abc import abstractmethod, ABC
 from tf_optimizer_core.dataset_loader import load
-import tflite_runtime.interpreter as tflite
+
+"""
+Apparently the TFLite interpreter built in tflite_runtime is extremly slow in x86 machines
+It is designed for ARM devices, it's 100x slower.
+So if we are in a x86 enviroments, the full tf will be loaded.
+Otherwise will be used the tflite_runtime module
+"""
+try:
+    import tflite_runtime.interpreter as tflite
+
+    Interpreter = tflite.Interpreter
+except ModuleNotFoundError:
+    print("Detected x86 arch")
+    import tensorflow as tf
+
+    Interpreter = tf.lite.Interpreter
 
 
 # Class to evaluate only one model
@@ -33,10 +48,11 @@ class BenchmarkerCore:
 
         return self.__dataset
 
-    async def test_model(
-        self, model_path: str, model_name: str = "", callback: Callback = None
-    ):
-        interpreter = tflite.Interpreter(model_path=model_path)
+    async def test_model(self, model, model_name: str = "", callback: Callback = None):
+        if isinstance(model, bytes):
+            interpreter = Interpreter(model_content=model)
+        else:
+            interpreter = Interpreter(model_path=model)
         interpreter.allocate_tensors()
         input_details = interpreter.get_input_details()[0]
         input_index = input_details["index"]
