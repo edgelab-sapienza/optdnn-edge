@@ -2,6 +2,7 @@ import numpy as np
 import time
 from abc import abstractmethod, ABC
 from tf_optimizer_core.dataset_loader import load
+import multiprocessing
 
 """
 Apparently the TFLite interpreter built in tflite_runtime is extremly slow in x86 machines
@@ -50,9 +51,13 @@ class BenchmarkerCore:
 
     async def test_model(self, model, model_name: str = "", callback: Callback = None):
         if isinstance(model, bytes):
-            interpreter = Interpreter(model_content=model)
+            interpreter = Interpreter(
+                model_content=model, num_threads=multiprocessing.cpu_count()
+            )
         else:
-            interpreter = Interpreter(model_path=model)
+            interpreter = Interpreter(
+                model_path=model, num_threads=multiprocessing.cpu_count()
+            )
         interpreter.allocate_tensors()
         input_details = interpreter.get_input_details()[0]
         input_index = input_details["index"]
