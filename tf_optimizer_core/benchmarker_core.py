@@ -3,6 +3,7 @@ import time
 from abc import abstractmethod, ABC
 from tf_optimizer_core.dataset_loader import load
 import multiprocessing
+from tf_optimizer_core.utils import list_of_files
 
 """
 Apparently the TFLite interpreter built in tflite_runtime is extremly slow in x86 machines
@@ -37,26 +38,30 @@ class BenchmarkerCore:
         ):
             pass
 
-    def __init__(self, dataset_path: str, interval=[0, 1]) -> None:
+    def __init__(
+        self, dataset_path: str, interval=[0, 1], use_multicore: bool = True
+    ) -> None:
         self.dataset_path = dataset_path
-        self.__dataset = None
+        self.__dataset__ = None
         self.interval = interval
+        self.__total_images__ = len(list_of_files(dataset_path))
+        if use_multicore:
+            self.__number_of_threads__ = multiprocessing.cpu_count()
+        else:
+            self.__number_of_threads__ = None
 
-    def __get_dataset__(self, image_size: tuple, images_to_take: int = 100):
-        self.__dataset = load(
-            self.dataset_path, image_size, images_to_take, interval=self.interval
-        )
-
-        return self.__dataset
+    def __get_dataset__(self, image_size: tuple):
+        self.__dataset__ = load(self.dataset_path, image_size, interval=self.interval)
+        return self.__dataset__
 
     async def test_model(self, model, model_name: str = "", callback: Callback = None):
         if isinstance(model, bytes):
             interpreter = Interpreter(
-                model_content=model, num_threads=multiprocessing.cpu_count()
+                model_content=model, num_threads=self.__number_of_threads__
             )
         else:
             interpreter = Interpreter(
-                model_path=model, num_threads=multiprocessing.cpu_count()
+                model_path=model, num_threads=self.__number_of_threads__
             )
         interpreter.allocate_tensors()
         input_details = interpreter.get_input_details()[0]
@@ -64,8 +69,7 @@ class BenchmarkerCore:
         output_index = interpreter.get_output_details()[0]["index"]
         pixel_sizes = interpreter.get_input_details()[0]["shape"][1:3]
         input_size = (pixel_sizes[0], pixel_sizes[1])
-        images_to_take = 150
-        dataset = self.__get_dataset__(input_size, images_to_take=images_to_take)
+        dataset = self.__get_dataset__(input_size)
 
         correct = 0
         total = 0
@@ -82,15 +86,15 @@ class BenchmarkerCore:
             end = time.time() * 1000
             tooked_time = end - start
             sum_time += tooked_time
-            output = interpreter.tensor(output_index)
-            predicted_label = np.argmax(output()[0])
+            output = interpreter.get_tensor(output_index)
+            predicted_label = np.argmax(output[0])
             if int(predicted_label) == int(label):
                 correct += 1
             total += 1
 
             if callback is not None:
                 accuracy = 100 * correct / total
-                progress = 100 * total / images_to_take
+                progress = 100 * total / self.__total_images__
                 await callback.progress_callback(
                     accuracy, progress, tooked_time, model_name
                 )
@@ -98,7 +102,7 @@ class BenchmarkerCore:
 
         print()
         r = BenchmarkerCore.Result()
-        r.accuracy = 100 * correct / total
+        r.accuracy = correct / total
         r.time = sum_time / total
 
         return r

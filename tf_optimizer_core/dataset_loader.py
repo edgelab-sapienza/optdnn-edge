@@ -1,5 +1,4 @@
 import os
-import random
 import numpy as np
 from PIL import Image
 
@@ -43,8 +42,7 @@ def load(dataset_path, size, image_to_take=-1, interval=[0, 1]):
 
     if image_to_take > 0:
         dataset = dataset[: min(image_to_take, len(dataset))]
-    random.shuffle(dataset)
-    # if batch_size < 0:
+
     for img in dataset:
         yield (
             open_image(img[0]),

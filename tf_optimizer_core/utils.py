@@ -19,3 +19,14 @@ def unzip_file(zipped_path, model_path):
     full_path = os.path.join(path, model_file)
     shutil.move(full_path, model_path)
     shutil.rmtree(path)
+
+
+def list_of_files(main_path: str):
+    paths = []
+    for folder in os.listdir(main_path):
+        folder_path = os.path.join(main_path, folder)
+        for img in os.listdir(folder_path):
+            img_path = os.path.join(folder_path, img)
+            if os.path.isfile(img_path):
+                paths.append(img_path)
+    return paths
