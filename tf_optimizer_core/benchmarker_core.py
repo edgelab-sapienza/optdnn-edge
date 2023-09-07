@@ -67,7 +67,8 @@ class BenchmarkerCore:
         input_details = interpreter.get_input_details()[0]
         input_index = input_details["index"]
         output_index = interpreter.get_output_details()[0]["index"]
-        pixel_sizes = interpreter.get_input_details()[0]["shape"][1:3]
+        input_shape = interpreter.get_input_details()[0]["shape"]
+        pixel_sizes = input_shape[1:3]
         input_size = (pixel_sizes[0], pixel_sizes[1])
         dataset = self.__get_dataset__(input_size)
 
@@ -80,6 +81,8 @@ class BenchmarkerCore:
                 image = image / input_scale + input_zero_point
 
             image = np.expand_dims(image, axis=0).astype(input_details["dtype"])
+            if len(input_shape) > len(image.shape):
+                image = np.expand_dims(image, axis=-1)  # For black and white images
             interpreter.set_tensor(input_index, image)
             start = time.time() * 1000
             interpreter.invoke()

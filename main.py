@@ -11,7 +11,7 @@ async def main():
     parser.add_argument(
         "--port",
         type=int,
-        help="IP to the remote node used for testing (default 12300)",
+        help="Port number in which the software listens for connection (default 12300)",
         required=False,
         default=12300,
     )
