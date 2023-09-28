@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Luca Giovannesi <l.giovannesi@gmail.com>"]
 readme = "README.md"
-packages = [{include = "src/tf_optimizer_core"}]
+packages = [{ include = "tf_optimizer_core", from = "src" }]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
@@ -15,9 +15,7 @@ pillow = "^9.5.0"
 tflite-runtime = [
       { version = "^2.13.0", markers = "platform_machine == 'aarch64'" },
 ]
-tensorflow = [
-      { version = "^2.12.0", markers = "platform_machine == 'x86_64'" },
-]
+tensorflow = [{ version = "^2.12.0", markers = "platform_machine == 'x86_64'" }]
 tqdm = "^4.65.0"
 
 
