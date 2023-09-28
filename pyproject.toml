@@ -3,8 +3,8 @@ name = "tf-optimizer-core"
 version = "0.1.0"
 description = ""
 authors = ["Luca Giovannesi <l.giovannesi@gmail.com>"]
-readme = "../README.md"
-packages = [{include = "tf_optimizer_core"}]
+readme = "README.md"
+packages = [{include = "src/tf_optimizer_core"}]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
