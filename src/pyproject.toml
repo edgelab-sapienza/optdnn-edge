@@ -3,7 +3,7 @@ name = "tf-optimizer-core"
 version = "0.1.0"
 description = ""
 authors = ["Luca Giovannesi <l.giovannesi@gmail.com>"]
-readme = "README.md"
+readme = "../README.md"
 packages = [{include = "tf_optimizer_core"}]
 
 [tool.poetry.dependencies]
