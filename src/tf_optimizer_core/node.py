@@ -1,17 +1,16 @@
 # Server executed in the host that performs the optimizations
 import asyncio
-import websockets
+import os
+import shutil
+import tempfile
 
-# import zget
-# from tf_optimizer_core.utils import file_callback
+import requests
+import websockets
+from tqdm.auto import tqdm
+
 from tf_optimizer_core.benchmarker_core import BenchmarkerCore
 from tf_optimizer_core.protocol import Protocol, PayloadMeans
 from tf_optimizer_core.utils import unzip_file
-from tqdm.auto import tqdm
-import shutil
-import os
-import requests
-import tempfile
 
 
 # Node
@@ -29,7 +28,7 @@ class Node:
             self.websocket = websocket
 
         async def progress_callback(
-            self, acc: float, progress: float, tooked_time: float, model_name: str = ""
+                self, acc: float, progress: float, tooked_time: float, model_name: str = ""
         ):
             current_accuracy = "{0:.2f}".format(acc)
             formatted_tooked_time = "{0:.2f}".format(tooked_time)
@@ -108,6 +107,6 @@ class Node:
 
     async def serve(self) -> None:
         async with websockets.serve(
-            self.recv_msg, "0.0.0.0", self.port, ping_interval=None
+                self.recv_msg, "0.0.0.0", self.port, ping_interval=None
         ):
             await asyncio.Future()

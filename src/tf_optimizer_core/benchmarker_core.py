@@ -1,8 +1,10 @@
-import numpy as np
+import multiprocessing
 import time
 from abc import abstractmethod, ABC
+
+import numpy as np
+
 from tf_optimizer_core.dataset_loader import load
-import multiprocessing
 from tf_optimizer_core.utils import list_of_files
 
 """
@@ -27,9 +29,10 @@ class BenchmarkerCore:
     class Result:
         accuracy: float
         time: float
+        model_name: str
 
         def __str__(self) -> str:
-            return f"Accuracy: {self.accuracy} - Tooked time: {self.time}"
+            return f"{self.model_name} | Accuracy: {self.accuracy} - Tooked time: {self.time}"
 
     class Callback(ABC):
         @abstractmethod
@@ -54,7 +57,7 @@ class BenchmarkerCore:
         self.__dataset__ = load(self.dataset_path, image_size, interval=self.interval)
         return self.__dataset__
 
-    async def test_model(self, model, model_name: str = "", callback: Callback = None):
+    async def test_model(self, model, model_name: str = "", callback: Callback = None) -> Result:
         if isinstance(model, bytes):
             interpreter = Interpreter(
                 model_content=model, num_threads=self.__number_of_threads__
@@ -107,5 +110,6 @@ class BenchmarkerCore:
         r = BenchmarkerCore.Result()
         r.accuracy = correct / total
         r.time = sum_time / total
+        r.model_name = model_name
 
         return r
