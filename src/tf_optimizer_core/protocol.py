@@ -1,6 +1,7 @@
-from enum import IntEnum, auto
-from tf_optimizer_core.benchmarker_core import BenchmarkerCore
 import struct
+from enum import IntEnum, auto
+
+from tf_optimizer_core.benchmarker_core import Result
 
 
 class PayloadMeans(IntEnum):
@@ -28,7 +29,7 @@ class Protocol:
         return struct.pack(f"!B{payload_len}s", int(self.cmd), self.payload)
 
     @classmethod
-    def build_put_model_file_request(cls, file_path: str,):
+    def build_put_model_file_request(cls, file_path: str, ):
         return Protocol(PayloadMeans.ModelPath, file_path.encode())
 
     @classmethod
@@ -36,7 +37,7 @@ class Protocol:
         return Protocol(PayloadMeans.DatasetPath, dataset_url)
 
     @classmethod
-    def build_with_result(cls, result: BenchmarkerCore.Result):
+    def build_with_result(cls, result: Result):
         data = struct.pack("!ff", result.accuracy, result.time)
         return Protocol(PayloadMeans.Result, data)
 
@@ -48,9 +49,9 @@ class Protocol:
         return Protocol(command, payload)
 
     @staticmethod
-    def get_evaulation_by_msg(msg) -> BenchmarkerCore.Result:
+    def get_evaulation_by_msg(msg) -> Result:
         acc, time = struct.unpack("!ff", msg.payload)
-        r = BenchmarkerCore.Result()
+        r = Result()
         r.time = time
         r.accuracy = acc
         return r

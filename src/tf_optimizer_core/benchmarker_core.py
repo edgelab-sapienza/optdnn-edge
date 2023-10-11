@@ -25,24 +25,28 @@ except ModuleNotFoundError:
 
 
 # Class to evaluate only one model
+class Result:
+    accuracy: float = None
+    time: float = None
+
+    def __int__(self, name: str, accuracy: float, took_time: float):
+        self.accuracy = accuracy
+        self.time = took_time
+
+    def __str__(self) -> str:
+        return f"Accuracy: {self.accuracy} - Tooked time: {self.time}"
+
+
 class BenchmarkerCore:
-    class Result:
-        accuracy: float
-        time: float
-        model_name: str
-
-        def __str__(self) -> str:
-            return f"{self.model_name} | Accuracy: {self.accuracy} - Tooked time: {self.time}"
-
     class Callback(ABC):
         @abstractmethod
         async def progress_callback(
-            self, acc: float, progress: float, tooked_time: float, model_name: str = ""
+                self, acc: float, progress: float, tooked_time: float, model_name: str = ""
         ):
             pass
 
     def __init__(
-        self, dataset_path: str, interval=[0, 1], use_multicore: bool = True
+            self, dataset_path: str, interval=[0, 1], use_multicore: bool = True
     ) -> None:
         self.dataset_path = dataset_path
         self.__dataset__ = None
@@ -107,9 +111,7 @@ class BenchmarkerCore:
             # End data display
 
         print()
-        r = BenchmarkerCore.Result()
+        r = Result()
         r.accuracy = correct / total
         r.time = sum_time / total
-        r.model_name = model_name
-
         return r
