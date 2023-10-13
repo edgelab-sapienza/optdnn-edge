@@ -46,7 +46,7 @@ class BenchmarkerCore:
             pass
 
     def __init__(
-            self, dataset_path: str, interval=[0, 1], use_multicore: bool = True
+            self, dataset_path: str, interval=[0, 1], use_multicore: bool = False
     ) -> None:
         self.dataset_path = dataset_path
         self.__dataset__ = None

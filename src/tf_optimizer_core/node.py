@@ -15,10 +15,6 @@ from tf_optimizer_core.utils import unzip_file
 
 # Node
 class Node:
-    workspace = "node_workspace"
-    MODEL_PATH = f"{workspace}/model.tflite"
-    DATASET_ZIP = f"{workspace}/dataset.zip"
-    DATASET_FOLDER = f"{workspace}/dataset"
     benchmarkerCore = None
     remote_address = None
     interval = (0, 1)
@@ -31,10 +27,9 @@ class Node:
                 self, acc: float, progress: float, tooked_time: float, model_name: str = ""
         ):
             current_accuracy = "{0:.2f}".format(acc)
-            formatted_tooked_time = "{0:.2f}".format(tooked_time)
-            msg = "Benchmarking: {} - progress: {}% - accuracy: {}% - speed: {} ms".format(
-                model_name, int(progress), current_accuracy, formatted_tooked_time
-            )
+            formatted_took_time = "{0:.2f}".format(tooked_time)
+            (remote_ip, port) = self.websocket.remote_address
+            msg = f"{remote_ip}:{port} | Benchmarking: {model_name} - progress: {int(progress)}% - accuracy: {current_accuracy}% - speed: {formatted_took_time} ms"
             msg_bytes = bytes(msg, "utf-8")
             encapsuled_msg = Protocol(PayloadMeans.ProgressUpdate, msg_bytes)
             await self.websocket.send(encapsuled_msg.to_bytes())
@@ -81,6 +76,10 @@ class Node:
         return None
 
     def __init__(self, port: int = 12300) -> None:
+        self.workspace = tempfile.mkdtemp(suffix="edge_optimizer")
+        self.MODEL_PATH = f"{self.workspace}/model.tflite"
+        self.DATASET_ZIP = f"{self.workspace}/dataset.zip"
+        self.DATASET_FOLDER = f"{self.workspace}/dataset"
         os.makedirs(self.workspace, exist_ok=True)
         self.port = port
 
