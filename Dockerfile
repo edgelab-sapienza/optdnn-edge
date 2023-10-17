@@ -18,8 +18,7 @@ WORKDIR /app
 
 COPY . .
 RUN poetry install
-
+EXPOSE 12300
 # Run your app
 COPY . /app
 CMD [ "poetry", "run", "python", "src/main.py" ]
-EXPOSE 12300
