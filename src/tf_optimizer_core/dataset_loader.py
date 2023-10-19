@@ -22,7 +22,7 @@ def load(dataset_path, size, image_to_take=-1, interval=[0, 1]):
 
     def open_image(path):
         img = Image.open(path)
-        img = img.resize(size)
+        img = img.resize((size[1], size[0]))  # Tensorflow uses HxW notation, while PIL WxH
         img = np.asarray(img)
         img = interval_min + (interval_range * img.astype(np.float32) / 255.0)
         return img
