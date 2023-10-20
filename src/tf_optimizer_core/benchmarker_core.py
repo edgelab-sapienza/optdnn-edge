@@ -46,7 +46,7 @@ class BenchmarkerCore:
             pass
 
     def __init__(
-            self, dataset_path: str, interval=[0, 1], use_multicore: bool = False
+            self, dataset_path: str, interval: list[float, float] = [0.0, 1.0], use_multicore: bool = False
     ) -> None:
         self.dataset_path = dataset_path
         self.__dataset__ = None
@@ -97,7 +97,10 @@ class BenchmarkerCore:
             tooked_time = end - start
             sum_time += tooked_time
             output = interpreter.get_tensor(output_index)
-            predicted_label = np.argmax(output[0])
+            if len(output[0]) > 1:  # Categorical classification
+                predicted_label = np.argmax(output[0])
+            else:  # Binary classification
+                predicted_label = round(output[0][0])
             if int(predicted_label) == int(label):
                 correct += 1
             total += 1

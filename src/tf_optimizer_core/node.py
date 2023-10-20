@@ -17,7 +17,7 @@ from tf_optimizer_core.utils import unzip_file
 class Node:
     benchmarkerCore = None
     remote_address = None
-    interval = (0, 1)
+    interval:tuple[float, float] = (0, 1)
 
     class RemoteCallback(BenchmarkerCore.Callback):
         def __init__(self, websocket) -> None:
@@ -72,7 +72,7 @@ class Node:
         elif protocol.cmd == PayloadMeans.DatasetScale:
             content = protocol.payload.decode()
             min_val, max_val = content.split(Protocol.string_delimiter)
-            self.interval = (int(min_val), int(max_val))
+            self.interval = (float(min_val), float(max_val))
         return None
 
     def __init__(self, port: int = 12300) -> None:
