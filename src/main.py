@@ -15,9 +15,16 @@ async def main():
         required=False,
         default=12300,
     )
+    parser.add_argument(
+        "--use_multi_core",
+        type=bool,
+        help="Use all device processors (default true)",
+        required=False,
+        default=True,
+    )
     args = parser.parse_args()
 
-    n = Node(args.port)
+    n = Node(args.port, args.use_multi_core)
     await n.serve()
 
 

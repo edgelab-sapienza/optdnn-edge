@@ -17,7 +17,7 @@ from tf_optimizer_core.utils import unzip_file
 class Node:
     benchmarkerCore = None
     remote_address = None
-    interval:tuple[float, float] = (0, 1)
+    interval: tuple[float, float] = (0, 1)
 
     class RemoteCallback(BenchmarkerCore.Callback):
         def __init__(self, websocket) -> None:
@@ -75,12 +75,13 @@ class Node:
             self.interval = (float(min_val), float(max_val))
         return None
 
-    def __init__(self, port: int = 12300) -> None:
+    def __init__(self, port: int, use_multi_core: bool) -> None:
         self.workspace = tempfile.mkdtemp(suffix="edge_optimizer")
         self.MODEL_PATH = f"{self.workspace}/model.tflite"
         self.DATASET_ZIP = f"{self.workspace}/dataset.zip"
         self.DATASET_FOLDER = f"{self.workspace}/dataset"
         os.makedirs(self.workspace, exist_ok=True)
+        self.use_multi_core = use_multi_core
         self.port = port
 
     def __del__(self):
@@ -90,7 +91,7 @@ class Node:
         if os.path.exists(self.MODEL_PATH) and os.path.exists(self.DATASET_FOLDER):
             callback = Node.RemoteCallback(websocket)
             if self.benchmarkerCore is None:
-                self.benchmarkerCore = BenchmarkerCore(self.DATASET_FOLDER)
+                self.benchmarkerCore = BenchmarkerCore(self.DATASET_FOLDER, use_multicore=self.use_multi_core)
             result = await self.benchmarkerCore.test_model(
                 self.MODEL_PATH, model_name, callback
             )
