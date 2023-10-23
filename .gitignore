@@ -1,3 +1,4 @@
 src/tf_optimizer_core/__pycache__
 node_workspace
 poetry.lock
+/env/
