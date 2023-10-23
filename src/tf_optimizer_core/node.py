@@ -105,6 +105,7 @@ class Node:
                 await websocket.send(data.to_bytes())
 
     async def serve(self) -> None:
+        print("Server started")
         async with websockets.serve(
                 self.recv_msg, "0.0.0.0", self.port, ping_interval=None
         ):
