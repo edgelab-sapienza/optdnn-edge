@@ -84,7 +84,6 @@ class BenchmarkerCore:
         total = 0
         sum_time = 0
         for image, label in dataset:
-            print(f" {image.max()} {image.min()}")
             if input_details["dtype"] == np.uint8 or input_details["dtype"] == np.int8:
                 input_scale, input_zero_point = input_details["quantization"]
                 image = image / input_scale + input_zero_point
