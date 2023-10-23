@@ -105,7 +105,6 @@ class BenchmarkerCore:
                 predicted_label = round(output[0][0])
             if int(predicted_label) == int(label):
                 correct += 1
-            print(f"PRED {int(predicted_label)} - {int(label)} - {output}")
             total += 1
 
             if callback is not None:
