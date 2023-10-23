@@ -73,6 +73,7 @@ class Node:
             content = protocol.payload.decode()
             min_val, max_val = content.split(Protocol.string_delimiter)
             self.interval = (float(min_val), float(max_val))
+            print(f"RECEVIED INTERVAL {self.interval}")
         return None
 
     def __init__(self, port: int, use_multi_core: bool) -> None:
@@ -91,7 +92,8 @@ class Node:
         if os.path.exists(self.MODEL_PATH) and os.path.exists(self.DATASET_FOLDER):
             callback = Node.RemoteCallback(websocket)
             if self.benchmarkerCore is None:
-                self.benchmarkerCore = BenchmarkerCore(self.DATASET_FOLDER, use_multicore=self.use_multi_core)
+                self.benchmarkerCore = BenchmarkerCore(self.DATASET_FOLDER, use_multicore=self.use_multi_core,
+                                                       interval=self.interval)
             result = await self.benchmarkerCore.test_model(
                 self.MODEL_PATH, model_name, callback
             )

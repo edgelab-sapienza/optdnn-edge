@@ -1,9 +1,10 @@
 import os
+
 import numpy as np
 from PIL import Image
 
 
-def load(dataset_path, size, image_to_take=-1, interval: list[float, float] = [0, 1]):
+def load(dataset_path, size, interval: tuple[float, float], image_to_take=-1):
     """Load an image dataset as NumPy arrays.
 
     Args:

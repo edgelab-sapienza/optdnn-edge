@@ -46,11 +46,12 @@ class BenchmarkerCore:
             pass
 
     def __init__(
-            self, dataset_path: str, interval: list[float, float] = [0.0, 1.0], use_multicore: bool = False
+            self, dataset_path: str, interval: tuple[float, float], use_multicore: bool = False
     ) -> None:
         self.dataset_path = dataset_path
         self.__dataset__ = None
         self.interval = interval
+        print(f"INTERVAL {interval}")
         self.__total_images__ = len(list_of_files(dataset_path))
         if use_multicore:
             self.__number_of_threads__ = multiprocessing.cpu_count()
@@ -58,7 +59,7 @@ class BenchmarkerCore:
             self.__number_of_threads__ = None
 
     def __get_dataset__(self, image_size: tuple):
-        self.__dataset__ = load(self.dataset_path, image_size, interval=self.interval)
+        self.__dataset__ = load(self.dataset_path, image_size, self.interval)
         return self.__dataset__
 
     async def test_model(self, model, model_name: str = "", callback: Callback = None) -> Result:
@@ -83,6 +84,7 @@ class BenchmarkerCore:
         total = 0
         sum_time = 0
         for image, label in dataset:
+            print(f" {image.max()} {image.min()}")
             if input_details["dtype"] == np.uint8 or input_details["dtype"] == np.int8:
                 input_scale, input_zero_point = input_details["quantization"]
                 image = image / input_scale + input_zero_point
@@ -103,6 +105,7 @@ class BenchmarkerCore:
                 predicted_label = round(output[0][0])
             if int(predicted_label) == int(label):
                 correct += 1
+            print(f"PRED {int(predicted_label)} - {int(label)} - {output}")
             total += 1
 
             if callback is not None:
