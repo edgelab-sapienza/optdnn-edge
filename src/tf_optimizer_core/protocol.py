@@ -38,7 +38,7 @@ class Protocol:
 
     @classmethod
     def build_with_result(cls, result: Result):
-        data = struct.pack("!ff", result.accuracy, result.time)
+        data = struct.pack("!Iff", int(result.node_id), result.accuracy, result.time)
         return Protocol(PayloadMeans.Result, data)
 
     @classmethod
@@ -49,11 +49,12 @@ class Protocol:
         return Protocol(command, payload)
 
     @staticmethod
-    def get_evaulation_by_msg(msg) -> Result:
-        acc, time = struct.unpack("!ff", msg.payload)
+    def get_result_by_msg(msg) -> Result:
+        node_id, acc, time = struct.unpack("!Iff", msg.payload)
         r = Result()
         r.time = time
         r.accuracy = acc
+        r.node_id = node_id
         return r
 
     def __str__(self) -> str:

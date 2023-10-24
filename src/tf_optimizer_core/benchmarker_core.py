@@ -28,13 +28,14 @@ except ModuleNotFoundError:
 class Result:
     accuracy: float = None
     time: float = None
+    node_id: int = None
 
     def __int__(self, name: str, accuracy: float, took_time: float):
         self.accuracy = accuracy
         self.time = took_time
 
     def __str__(self) -> str:
-        return f"Accuracy: {self.accuracy} - Tooked time: {self.time}"
+        return f"{self.node_id}|Accuracy: {self.accuracy} - Tooked time: {self.time}"
 
 
 class BenchmarkerCore:

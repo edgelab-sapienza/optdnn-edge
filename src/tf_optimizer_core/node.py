@@ -6,7 +6,7 @@ import tempfile
 
 import requests
 import websockets
-from tf_optimizer_core.benchmarker_core import BenchmarkerCore
+from tf_optimizer_core.benchmarker_core import BenchmarkerCore, Result
 from tf_optimizer_core.protocol import Protocol, PayloadMeans
 from tf_optimizer_core.utils import unzip_file
 from tqdm.auto import tqdm
@@ -39,7 +39,7 @@ class Node:
         # Download model file
         if protocol.cmd == PayloadMeans.ModelPath:
             content = protocol.payload.decode()
-            url, model_name = content.split(Protocol.string_delimiter)
+            url, model_name, node_id = content.split(Protocol.string_delimiter)
             with requests.get(url, stream=True) as r:
                 total_length = int(r.headers.get("Content-Length"))
                 fd, path = tempfile.mkstemp(".zip")
@@ -51,9 +51,10 @@ class Node:
             os.remove(path)
             print(f"MODEL:{model_name} SAVED IN: {self.MODEL_PATH}")
             # zget.get(model_name, self.MODEL_PATH, file_callback)
-            result = await self.__test_model(websocket, model_name)
+            result = await self.__test_model__(websocket, model_name)
+            result.node_id = node_id
             os.remove(self.MODEL_PATH)
-            return result
+            return Protocol.build_with_result(result)
         # Download dataset
         elif protocol.cmd == PayloadMeans.DatasetPath:
             self.clear_content()
@@ -91,7 +92,7 @@ class Node:
             shutil.rmtree(self.workspace)
         os.makedirs(self.workspace)
 
-    async def __test_model(self, websocket, model_name) -> Protocol:
+    async def __test_model__(self, websocket, model_name) -> Result:
         if os.path.exists(self.MODEL_PATH) and os.path.exists(self.DATASET_FOLDER):
             callback = Node.RemoteCallback(websocket)
             benchmarker_core = BenchmarkerCore(self.DATASET_FOLDER, use_multicore=self.use_multi_core,
@@ -99,7 +100,7 @@ class Node:
             result = await benchmarker_core.test_model(
                 self.MODEL_PATH, model_name, callback
             )
-            return Protocol.build_with_result(result)
+            return result
 
     async def recv_msg(self, websocket):
         (remote_ip, _) = websocket.remote_address
