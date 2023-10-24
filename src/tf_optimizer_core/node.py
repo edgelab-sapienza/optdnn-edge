@@ -6,16 +6,14 @@ import tempfile
 
 import requests
 import websockets
-from tqdm.auto import tqdm
-
 from tf_optimizer_core.benchmarker_core import BenchmarkerCore
 from tf_optimizer_core.protocol import Protocol, PayloadMeans
 from tf_optimizer_core.utils import unzip_file
+from tqdm.auto import tqdm
 
 
 # Node
 class Node:
-    benchmarkerCore = None
     remote_address = None
     interval: tuple[float, float] = (0, 1)
 
@@ -57,6 +55,7 @@ class Node:
             return result
         # Download dataset
         elif protocol.cmd == PayloadMeans.DatasetPath:
+            self.clear_content()
             with requests.get(protocol.payload, stream=True) as r:
                 total_length = int(r.headers.get("Content-Length"))
                 with tqdm.wrapattr(r.raw, "read", total=total_length, desc="") as raw:
@@ -67,7 +66,8 @@ class Node:
             return Protocol(PayloadMeans.Ok, b"")
         # Delete workspace
         elif protocol.cmd == PayloadMeans.Close:
-            shutil.rmtree(self.workspace)
+            if os.path.exists(self.workspace):
+                shutil.rmtree(self.workspace)
             os.mkdir(self.workspace)
         elif protocol.cmd == PayloadMeans.DatasetScale:
             content = protocol.payload.decode()
@@ -77,7 +77,7 @@ class Node:
         return None
 
     def __init__(self, port: int, use_multi_core: bool) -> None:
-        self.workspace = tempfile.mkdtemp(suffix="edge_optimizer")
+        self.workspace = tempfile.mkdtemp(suffix="_edge_optimizer")
         self.MODEL_PATH = f"{self.workspace}/model.tflite"
         self.DATASET_ZIP = f"{self.workspace}/dataset.zip"
         self.DATASET_FOLDER = f"{self.workspace}/dataset"
@@ -85,16 +85,17 @@ class Node:
         self.use_multi_core = use_multi_core
         self.port = port
 
-    def __del__(self):
-        shutil.rmtree(self.workspace)
+    def clear_content(self):
+        if os.path.exists(self.workspace):
+            shutil.rmtree(self.workspace)
+        os.makedirs(self.workspace)
 
     async def __test_model(self, websocket, model_name) -> Protocol:
         if os.path.exists(self.MODEL_PATH) and os.path.exists(self.DATASET_FOLDER):
             callback = Node.RemoteCallback(websocket)
-            if self.benchmarkerCore is None:
-                self.benchmarkerCore = BenchmarkerCore(self.DATASET_FOLDER, use_multicore=self.use_multi_core,
-                                                       interval=self.interval)
-            result = await self.benchmarkerCore.test_model(
+            benchmarker_core = BenchmarkerCore(self.DATASET_FOLDER, use_multicore=self.use_multi_core,
+                                               interval=self.interval)
+            result = await benchmarker_core.test_model(
                 self.MODEL_PATH, model_name, callback
             )
             return Protocol.build_with_result(result)
