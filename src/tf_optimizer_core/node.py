@@ -20,13 +20,14 @@ class Node:
     class RemoteCallback(BenchmarkerCore.Callback):
         def __init__(self, websocket) -> None:
             self.websocket = websocket
+            print(websocket)
 
         async def progress_callback(
                 self, acc: float, progress: float, tooked_time: float, model_name: str = ""
         ):
             current_accuracy = "{0:.2f}".format(acc)
             formatted_took_time = "{0:.2f}".format(tooked_time)
-            (remote_ip, port) = self.websocket.remote_address
+            (remote_ip, port) = self.websocket.local_address
             msg = f"{remote_ip}:{port} | Benchmarking: {model_name} - progress: {int(progress)}% - accuracy: {current_accuracy}% - speed: {formatted_took_time} ms"
             msg_bytes = bytes(msg, "utf-8")
             encapsuled_msg = Protocol(PayloadMeans.ProgressUpdate, msg_bytes)
