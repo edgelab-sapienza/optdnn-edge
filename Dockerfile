@@ -1,14 +1,24 @@
 FROM python:3.9
 
-RUN apt update -y && apt install -y libopenblas-dev liblapack3
+# Configure Poetry
+ENV POETRY_VERSION=1.6.0
+ENV POETRY_HOME=/opt/poetry
+ENV POETRY_VENV=/opt/poetry-venv
+ENV POETRY_CACHE_DIR=/opt/.cache
+
+# Install poetry separated from system interpreter
+RUN python3 -m venv $POETRY_VENV \
+	&& $POETRY_VENV/bin/pip install -U pip setuptools \
+	&& $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
+
+# Add `poetry` to PATH
+ENV PATH="${PATH}:${POETRY_VENV}/bin"
 
 WORKDIR /app
 
 COPY . .
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-
+RUN poetry install
 EXPOSE 12300
 # Run your app
 COPY . /app
-CMD [ "python3", "src/main.py" ]
+CMD [ "poetry", "run", "python", "src/main.py" ]
