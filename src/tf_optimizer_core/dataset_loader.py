@@ -1,10 +1,11 @@
 import os
 
 import numpy as np
+import tensorflow as tf
 from PIL import Image
 
 
-def load(dataset_path, size, interval: tuple[float, float], image_to_take=-1):
+def load(dataset_path, size, interval: tuple[float, float], data_format=None, image_to_take=-1):
     """Load an image dataset as NumPy arrays.
 
     Args:
@@ -17,6 +18,7 @@ def load(dataset_path, size, interval: tuple[float, float], image_to_take=-1):
     y_dtype: NumPy data type for the Y arrays.
     Returns a tuple of (x, y) tuples corresponding to set_names.
     """
+
     interval_min = interval[0]
     interval_max = interval[1]
     interval_range = interval_max - interval_min
@@ -25,7 +27,10 @@ def load(dataset_path, size, interval: tuple[float, float], image_to_take=-1):
         img = Image.open(path)
         img = img.resize((size[1], size[0]))  # Tensorflow uses HxW notation, while PIL WxH
         img = np.asarray(img)
-        img = interval_min + (interval_range * img.astype(np.float32) / 255.0)
+        if data_format is None or len(data_format) == 0:
+            img = interval_min + (interval_range * img.astype(np.float32) / 255.0)
+        else:
+            img = tf.keras.applications.imagenet_utils.preprocess_input(img, mode=data_format)
         return img
 
     dataset = []

@@ -6,16 +6,18 @@ import tempfile
 
 import requests
 import websockets
+from tqdm.auto import tqdm
+
 from tf_optimizer_core.benchmarker_core import BenchmarkerCore, Result
 from tf_optimizer_core.protocol import Protocol, PayloadMeans
 from tf_optimizer_core.utils import unzip_file
-from tqdm.auto import tqdm
 
 
 # Node
 class Node:
     remote_address = None
     interval: tuple[float, float] = (0, 1)
+    data_format: str = None
 
     class RemoteCallback(BenchmarkerCore.Callback):
         def __init__(self, websocket) -> None:
@@ -75,7 +77,11 @@ class Node:
             content = protocol.payload.decode()
             min_val, max_val = content.split(Protocol.string_delimiter)
             self.interval = (float(min_val), float(max_val))
-            print(f"RECEVIED INTERVAL {self.interval}")
+            print(f"RECEIVED INTERVAL {self.interval}")
+        elif protocol.cmd == PayloadMeans.DataFormat:
+            content = protocol.payload.decode()
+            self.data_format = content
+            print(f"RECEIVED {self.data_format}")
         return None
 
     def __init__(self, port: int, use_multi_core: bool) -> None:
@@ -96,7 +102,7 @@ class Node:
         if os.path.exists(self.MODEL_PATH) and os.path.exists(self.DATASET_FOLDER):
             callback = Node.RemoteCallback(websocket)
             benchmarker_core = BenchmarkerCore(self.DATASET_FOLDER, use_multicore=self.use_multi_core,
-                                               interval=self.interval)
+                                               interval=self.interval, data_format=self.data_format)
             result = await benchmarker_core.test_model(
                 self.MODEL_PATH, model_name, callback
             )

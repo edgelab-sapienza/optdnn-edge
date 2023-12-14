@@ -29,6 +29,7 @@ class Result:
     accuracy: float = None
     time: float = None
     node_id: int = None
+    size: int = None
 
     def __int__(self, name: str, accuracy: float, took_time: float):
         self.accuracy = accuracy
@@ -47,11 +48,12 @@ class BenchmarkerCore:
             pass
 
     def __init__(
-            self, dataset_path: str, interval: tuple[float, float], use_multicore: bool = False
+            self, dataset_path: str, interval: tuple[float, float], use_multicore: bool = False, data_format: str = None
     ) -> None:
         self.dataset_path = dataset_path
         self.__dataset__ = None
         self.interval = interval
+        self.data_format = data_format
         print(f"INTERVAL {interval}")
         self.__total_images__ = len(list_of_files(dataset_path))
         if use_multicore:
@@ -60,7 +62,7 @@ class BenchmarkerCore:
             self.__number_of_threads__ = None
 
     def __get_dataset__(self, image_size: tuple):
-        self.__dataset__ = load(self.dataset_path, image_size, self.interval)
+        self.__dataset__ = load(self.dataset_path, image_size, self.interval, data_format=self.data_format)
         return self.__dataset__
 
     async def test_model(self, model, model_name: str = "", callback: Callback = None) -> Result:

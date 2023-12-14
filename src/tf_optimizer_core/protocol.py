@@ -13,6 +13,7 @@ class PayloadMeans(IntEnum):
     Close = auto()
     ProgressUpdate = auto()
     IdentifierMessage = auto()
+    DataFormat = auto()
 
 
 class Protocol:
