@@ -19,15 +19,14 @@ def load(dataset_path, size, interval: tuple[float, float], data_format=None, im
     Returns a tuple of (x, y) tuples corresponding to set_names.
     """
 
-    interval_min = interval[0]
-    interval_max = interval[1]
-    interval_range = interval_max - interval_min
-
     def open_image(path):
         img = Image.open(path)
         img = img.resize((size[1], size[0]))  # Tensorflow uses HxW notation, while PIL WxH
         img = np.asarray(img)
         if data_format is None or len(data_format) == 0:
+            interval_min = interval[0]
+            interval_max = interval[1]
+            interval_range = interval_max - interval_min
             img = interval_min + (interval_range * img.astype(np.float32) / 255.0)
         else:
             img = tf.keras.applications.imagenet_utils.preprocess_input(img, mode=data_format)
