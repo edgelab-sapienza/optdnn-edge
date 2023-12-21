@@ -20,7 +20,7 @@ def load(dataset_path, size, interval: tuple[float, float], data_format=None, im
     """
 
     def open_image(path):
-        img = Image.open(path)
+        img = Image.open(path).convert("RGB")
         img = img.resize((size[1], size[0]))  # Tensorflow uses HxW notation, while PIL WxH
         img = np.asarray(img)
         if data_format is None or len(data_format) == 0:
