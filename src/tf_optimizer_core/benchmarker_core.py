@@ -30,10 +30,12 @@ class Result:
     time: float = None
     node_id: int = None
     size: int = None
+    name: str = None
 
     def __int__(self, name: str, accuracy: float, took_time: float):
         self.accuracy = accuracy
         self.time = took_time
+        self.name = name
 
     def __str__(self) -> str:
         return f"{self.node_id}|Accuracy: {self.accuracy} - Tooked time: {self.time}"
@@ -121,4 +123,5 @@ class BenchmarkerCore:
         r = Result()
         r.accuracy = correct / total
         r.time = sum_time / total
+        r.name = model_name
         return r
