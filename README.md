@@ -1,4 +1,4 @@
-# Optimizer Edge
+# OptDNN: Benchmarker for edge devices
 
 This software runs on edge device and listen for models to be evaluated.
 The models are the one sent by the [optimizer](https://gitlab.com/edgeseamless/optimizer-main) that will be evaluated by this software, the evaluation results are sent back to optimizer-main.
