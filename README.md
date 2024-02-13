@@ -1,7 +1,7 @@
 # OptDNN: Benchmarker for edge devices
 
 This software runs on edge device and listen for models to be evaluated.
-The models are sent by the [OptDNN](https://github.com/kernel-machine/optdnn) and will be evaluated by this software, then the evaluation results are sent back to OptDNN.
+The models are sent by the [OptDNN](https://github.com/edgelab-sapienza/optdnn) and will be evaluated by this software, then the evaluation results are sent back to OptDNN.
 
 ## Build & Run (With docker)
 A docker image already built is available in [docker hub](https://hub.docker.com/r/kernelmachine/optdnn-edge) as `kernelmachine/optdnn-edge`
@@ -36,7 +36,7 @@ By default, the port used is 12300, but you can change this parameter with the `
 # OptDNN: Benchmarker for edge devices
 
 This software runs on edge device and listen for models to be evaluated.
-The models are the one sent by the [optimizer](https://gitlab.com/kernelmachine/optdnn) that will be evaluated by this software, the evaluation results are sent back to optimizer-main.
+The models are the one sent by the [optimizer](https://github.com/edgelab-sapienza/optdnn) that will be evaluated by this software, the evaluation results are sent back to optimizer-main.
 
 ## Build & Run (With docker)
 To build the image:
